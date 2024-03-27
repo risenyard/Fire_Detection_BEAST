@@ -1,0 +1,23 @@
+{
+    "gee_processor": {
+        "study_area_shp_path": "Boundary_File/Rocky_Mountain_National_Park_Shp/RMNP.shp",
+        "start_date": "2018-01-01",
+        "end_date": "2023-12-31", 
+        "land_cover_data": "USGS/NLCD_RELEASES/2020_REL/NALCMS",
+        "remote_sensing_data": "MODIS/006/MOD09Q1"
+    },
+    "export_image": {
+        "image_path": "MODIS_File/NDVI_stack.tif",
+        "image_band_name": "MODIS_File/band_name.npy",
+        "scale": 250,
+        "crs": "EPSG:2232",
+        "unmask_value": -99,
+        "geemap_html": "MODIS_File/Map.html"
+    },
+    "fire_detector": {
+        "nan_ratio_threshold": 0.5,
+        "BEAST_belief_threshold": 0.8,
+        "result_directory": "Fire_Detection_Result/",
+        "validation_shp_path": "Boundary_File/TrueFire.shp"
+    }
+}

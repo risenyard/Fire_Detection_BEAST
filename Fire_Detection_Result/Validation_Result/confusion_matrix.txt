@@ -1,0 +1,8 @@
+Confusion Matrix:
+[[8336  232]
+ [ 418 1134]]
+Accuracy: 0.94
+Precision: 0.83
+Recall: 0.73
+F1 Score: 0.78
+Kappa Score: 0.74
