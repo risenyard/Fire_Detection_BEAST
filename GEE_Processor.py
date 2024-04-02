@@ -64,7 +64,7 @@ class gee_processor:
         mask = cloudState.eq(0).And(cloudShadowState.eq(0)).And(cirrusState.eq(0))  # Clear, No cloud shadow, No cirrus
         return image.updateMask(mask)  # Apply the mask to the image
 
-    # Extrace NDVI from each time series and make them bands in one image
+    # Extract NDVI from all bands at each timestep and make all extracted NDVI as bands in stacked image at the time series.
     def NDVI_Exract_Stack(self):
         # Process the MODIS data
         NDVI = self.forest_data_with_NDVI.select("NDVI")

@@ -59,6 +59,7 @@ time_series_after_detection = detector.load_temporal_variable(time_series_after_
 # Visualize the fire detection result
 image = detector.fire_visualization(time_series_after_detection)
 detector.fire_visualization_by_time(time_series_after_detection)
+
 # Export the fire detection result as a raster
 result_raster_path = detector.result_exported_as_raster(image)
 # Validate the fire detection result

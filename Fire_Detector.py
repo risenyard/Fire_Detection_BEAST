@@ -14,6 +14,7 @@ import datetime as dt
 from datetime import datetime
 import os
 import sys
+# import pycrs
 import pyproj
 pyproj.datadir.get_data_dir()
 pyproj.datadir.set_data_dir(os.path.dirname(sys.argv[0]))
@@ -149,7 +150,7 @@ class fire_detector:
         print(f"Temporal variable loaded from {file_path}")
         return temporal_variable
     
-    # result visualization (taking the output og def detct_fire)
+    # result visualization (taking the output of def detct_fire)
     def fire_visualization(self, time_series_after_detection):
         data_with_xy = time_series_after_detection
         image_class = np.full((self.height, self.width),np.nan)
@@ -183,8 +184,8 @@ class fire_detector:
         plt.savefig(result_path, dpi=300, bbox_inches='tight')
         print(f"Fire detection visualisation saved to {result_path}")
         return image_class
-    
-     # result visualization (taking the output og def detct_fire)
+
+    # result visualization (taking the output og def detct_fire)
     def fire_visualization_by_time(self, time_series_after_detection):
         # Convert 'fire_time' to datetime
         time_series_after_detection['fire_time'] = pd.to_datetime(time_series_after_detection['fire_time'])
