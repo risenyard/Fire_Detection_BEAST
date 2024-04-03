@@ -2,7 +2,7 @@
 
 ## Quick Introduction
 
->This project can detect the forest fire from a given study area and time by detecting the changepoint of the time series from the MODIS data. For usage of the project quickly, please check [3. Execution: Run the code](#3-execution-run-the-code).
+>This project can detect the forest fire from a given study area and time by detecting the change point of the time series from the MODIS data. For usage of the project quickly, please check [3. Execution: Run the code](#3-execution-run-the-code).
 
 This manual gives detailed instructions about how to set up the Python environment, understand the code structure and run the code. By default, the manual applies to both Windows and macOS and has been tested in Windows 10 and macOS Ventura platform. Anything about the two platforms needing attention are explained in the body.
 
@@ -122,7 +122,7 @@ The suggested way to use this module is to initialize the class first and refer 
 
 This is the second module utilized by the project. It re-structures the standard MODIS data into a time-series list, detects the pixel of fire based on the generated time-series list with BEAST algorithm, visualizes the results and validate the results with true fire boundary. It contains a class to handle all workflow with following functions.
 
-- `_init_`: the class initializes by reading the MODIS data and bandnames from Google Earth Engine first, creates the time-seires lists from them, and sets up the threshold for fire detection algorithms.
+- `_init_`: the class initializes by reading the MODIS data and bandnames from Google Earth Engine first, creates the time series lists from them, and sets up the threshold for fire detection algorithms.
 - `read_geotiff`: read the geotiff data from file.
 - `get_time_series`: get the time series of each pixel of the image by resorting the input MODIS NDVI stack and make them into a list.
 - `visualize_ts`: visualize the time series of a pixel.
@@ -154,12 +154,12 @@ The file sets up all parameters ahead avoid any hard-coded vars. All modificatio
   - `image_path`: path to save the image
   - `image_band_name`: path to save the band names of the image
   - `scale`: scale of the image
-  - `crs`: coordinate reference system of the image (number of EPSG)
+  - `crs`: coordinate reference system of the image (code of EPSG)
   - `unmask_value`: values to be masked as nan
   - `geemap_html`: path to save the html page of the exported geemap
 - `fire_detector`: this chapter includes parameters for fire detection, result output and validation.
-  - `nan_ratio_threshold`: when the ratio of nan values at one time series is above this threshold, the, get rid of this series to make detection more meaningful.
-  - `BEAST_belief_threshold`: the confidence threshold for BEAST algorithm, above which the changepoint is considered valid.
+  - `nan_ratio_threshold`: when the ratio of nan values at one time series is above this threshold, get rid of this series to make detection more meaningful.
+  - `BEAST_belief_threshold`: the confidence threshold for BEAST algorithm, above which the change point is considered valid.
   - `result_directory`: directory to contain output files.
   - `validation_shp_path`: path to the true fire boundary shapefiles.
 
@@ -175,157 +175,143 @@ The file sets up all parameters ahead avoid any hard-coded vars. All modificatio
 >
 >*Output Data: fire detection and its validation visualization and values under directory `Fire_Detection_Result`*
 
-Navigate to the directory where Fire_Detector.py is located.
-Run the script using the following command:
-Functionality
-The script works by processing the input from a camera feed or a video file. It uses image processing techniques to identify potential fire in the frames.
+Both `main.ipynb` and `main.py` can execute the project with the same output. The codes for both files are equal. `main.ipynb` can bring more interactive experience while `main.py` is more efficient. The detailed manual to run the execution file is written in [3.1 Run with `main.ipynb`](#31-run-with-mainipynb) and [3.2 Run with `main.ipynb`](#32-run-with-mainpy) focuses on the difference. If you need to familiarize with the .ipynb and .py format, please check [1.2 Jupyter Notebook (ipynb.) / Python script (py.) in Visual Studio Code](#12-jupyter-notebook-ipynb--python-script-py-in-visual-studio-code).
 
-Troubleshooting
-If you encounter any issues while running the script, ensure that:
+### 3.1 Run with `main.ipynb`
 
-You have the correct version of Python installed.
-All the required libraries are installed and up-to-date.
-The script has the necessary permissions to access the camera feed or video file.
-Support
-For further assistance, please refer to the documentation or contact the developer.
+#### Load the necessary modules and input data
 
-Please note that this is a general manual. For a more detailed manual, I would need more specific information about the functions and methods used in the Fire_Detector.py script.
-#### 3.1 Run with main.py
-
-
+The first step is to import all libraries including our custom `GEE_Processor` and `Fire_Detector` module. Then load the json file which defines all parameters (See [2.3 input.json](#23-inputjson)). 
 
 ```python
+import json
+import io
+import contextlib
+from GEE_Processor import gee_processor
+from Fire_Detector import fire_detector
 
+# 1 Load the configuration file.
+with open('input.json', 'r') as f:
+    config = json.load(f)
 ```
 
+#### Process and download MODIS data from Google Earth Engine
 
-
-#### 3.2 Run with main.ipynb
-
-The figure set by `figure()` is the base for plotting with `Matplotlib`. On top of the figure, we need to set an axis object accommodating the map. As we create global map, we can use `set_global()` to set the extent of the axis to be global. The linewidth of axis is set to 1 and colour to grey.
+After all data are ready, we initialize the `gee_processor` class by assigning land cover data and the MODIS data, time and study area. The project will fetch the data from Google Earth Engine, mask it by land cover and study area and filter it by date.
 
 ```python
-################# 2 canvas settings ###########################
-
-# establish a canvas
-fig = plt.figure(figsize=(10, 5))
-# set up and ax object
-ax = fig.add_subplot(1, 1, 1, projection=crs)
-
-# Set the extent and crs of the map
-ax.set_global()
-# Set parameters of the ax
-for spine in ax.spines.values():
-    spine.set_linewidth(1)
-    spine.set_color('grey')
+# 2 Pre-process and download the NDVI time series data from GEE
+# Get the selected remote sensing data
+processor = gee_processor(
+    study_area_shp_path=config['gee_processor']['study_area_shp_path'],
+    start_date=config['gee_processor']['start_date'],
+    end_date=config['gee_processor']['end_date'],
+    land_cover_data=config['gee_processor']['land_cover_data'],
+    remote_sensing_data=config['gee_processor']['remote_sensing_data']
+)
 ```
+There will appear browser windows to ask for access to Google Earth Engine. Please click `GENERATE TOKEN` at the first one, `Select all` access at the second and the authentication code will appear at the third.
 
+![GEEIP](README%20Images/GEEIP.png)
 
+Please copy the authentication code into the blank at the pop-up window shown below. 
 
-#### 3.3 Classify the spatial data and plot the result
+![GEEIP4](README%20Images/GEEIP4.png)
 
-Before mapping, we can classify the data to be 5 classes. We basically use Quantiles method to do it, as every classes contain equal number of countries. `mapclassify` provides `Quantiles` function to conduct it. After that, we can check the breaks of the classification. And then we manually adjust the break values to them more neat. Then we redo the classification with custom breaks. `UserDefined` function of `mapclassify` can be applied. We then  get an classifier.  `classifier.yb` can extract  an array containing the class labels for each country in the `data['GDP per capita']` array based on the breaks
-defined earlier.
+After the initialization, we will get an object variable `processor`, then we use the `NDVI_Exract_Stack`  to extract NDVI from all bands at each time step and make all extracted NDVI as bands in one stacked image. Finally, `export_image` will be used to download the image (with its band names) to the local directory and `geemap_export` will be used to export the final dataset to a geemap for visualization at html page. We need the downloaded image to perform the following fire detection because by downloading, the images can be projected and converted to geotiff. The downloaded image also makes it possible to run the fire detection process separately.
 
 ```python
-################ 3 classification and plotting ################
+# Get the NDVI stack
+NDVI_stack = processor.NDVI_Exract_Stack()
 
-# classify the data to be 5 classes using breaks inspired by Quantiles
-class_number = 5
-breaks = [2000, 5000, 10000, 30000, 200000] # the breaks were inspired by results of Quantiles
-#classifier = mc.Quantiles(data['GDP per capita'], k=class_number) # this script was run first to get the raw breaks
-classifier = mc.UserDefined(data['GDP per capita'], breaks)
-classifications = np.array(classifier.yb)
+# Export the NDVI stack
+band_names = processor.export_image(
+    NDVI_stack,
+    filename=config['export_image']['image_path'],
+    filename_band_name=config['export_image']['image_band_name'],
+    scale=config['export_image']['scale'],
+    crs=config['export_image']['crs'],
+    unmask_value=config['export_image']['unmask_value']
+)
+
+# Visualize the study area and the NDVI stack
+processor.geemap_export(NDVI_stack,config['export_image']['geemap_html'])
 ```
+![GEEIP5](README%20Images/GEEIP5.png)
 
-Before plotting the classification, we set the colormap to be ‘RdYnGn’. Lower value is more red and higher one is more green. Then we have a loop to iterate over each class in the classification and plots the corresponding data on the map. For each class `i`, it creates a subset of the Dataframe containing only the rows where `classifications == i` . It then plots the geometries  from this subset.
+#### Fire detection, visualization and validation
+
+We create a string stream object first to avoid unnecessary printing output, which could accelerate the code execution. We initialize the `fire_detector` class by reading the exported images and band names from Google Earth Engine, creating the time-series lists from them, and setting up the threshold for fire detection algorithms. Furthermore, we will get an object variable `detector`, and use `detect_fire` to detect the fire with BEAST at each pixel.
 
 ```python
-# plot the classification
-cmap = plt.get_cmap('RdYlGn', class_number) #set the colormap
-for i in range(class_number):
-    subset = data[classifications == i]
-    ax.add_geometries(subset['geometry'], crs, facecolor=cmap(i), edgecolor='black', linewidth=0.2)
+# 3 Fire Detection with Rbeast
+# create a string stream object
+output = io.StringIO()
+
+# use contextlib to redirect the stdout to the string stream object
+with contextlib.redirect_stdout(output):
+    # Run the fire detection
+    detector = fire_detector(
+        file_path=config['export_image']['image_path'],
+        file_band_names=config['export_image']['image_band_name'],
+        crs=config['export_image']['crs'],
+        unmask_value=config['export_image']['unmask_value'],
+        nan_ratio_threshold=config['fire_detector']['nan_ratio_threshold'],
+        BEAST_belief_threshold=config['fire_detector']['BEAST_belief_threshold'],
+        result_directory=config['fire_detector']['result_directory']
+    )
+    # Detect the fire on each pixel's time series
+    time_series_after_detection = detector.detect_fire()
 ```
 
-Additionally, we can add the ocean and lakes features from `Cartopy.feature` , which will get the data from Natural Earth.
+We can check the progress by the progress bar. The process usually takes around one hour.
+
+![GEEIP6](README%20Images/GEEIP6.png)
+
+The variable `time_series_after_detection` will store the time series values, whether on fire, time of fire for all pixel. `save_temporal_variable` can be used to save the temporal variable to file to avoid detecting again when re-running the project. And `load_temporal_variable` is the function for loading the temporal variable from file.
 
 ```python
-# add the ocean and lakes
-ax.add_feature(cfeature.OCEAN)
-ax.add_feature(cfeature.LAKES)
+time_series_after_detection_temporary_path = 'ts.pkl'
+detector.save_temporal_variable(time_series_after_detection,time_series_after_detection_temporary_path)
+#time_series_after_detection = detector.load_temporal_variable(time_series_after_detection_temporary_path)
 ```
-
-
-
-#### 3.4 Design map element
-
-All the map elements can be designed based on axis. For the title, font name is Times New Roman and font size is 16. It is by default on the center of the map.
+With variable `time_series_after_detection`, `fire_visualization` is used to visualize the results of fire detection by showing the predicted fire areas on the image. The output of it, `image` will be the input for `result_exported_as_raster` to export the detection result as raster. Then, the output of `result_exported_as_raster` is the path to the exported raster, which will work with the path of validation shapefile together in `result_validation` to validate the detection result and generate confusion matrix. A
 
 ```python
-############### 4 map layout setting ############################
+# Visualize the fire detection result
+image = detector.fire_visualization(time_series_after_detection)
+detector.fire_visualization_by_time(time_series_after_detection)
 
-#set title
-ax.set_title("GDP per capita in 2019 for all countries")
-ax.title.set_fontname('times new roman')
-ax.title.set_fontsize(16)
+# Export the fire detection result as a raster
+result_raster_path = detector.result_exported_as_raster(image)
+# Validate the fire detection result
+validation_shp_path = config['fire_detector']['validation_shp_path']
+detector.result_validation(result_raster_path,validation_shp_path)
 ```
 
-For legend, we can build 5 rectangles icons with the different colors in the colormap. as we make custom breaks, it is also suitable to make custom labels beside the rectangles. And the position of legend is custom to be in the place near to left bottom corner of the map.
+All output images and tables will be exported to the result directory.
 
-```python
-# set the legend
-# create a list of color labels for the legend (NB: this is only fot the case of 5 classes)
-color_labels = ['< 2000', '2000-5000', '5000-10000', '10000-30000', '> 30000']
-# create a list of colored rectangles to use for the legend
-rectangles = [Rectangle((0, 0), 1, 1, fc=cmap(i)) for i in range(class_number)]
-# create the legend with the colored rectangles
-legend = ax.legend(rectangles, color_labels, title='GDP per capita ($)', bbox_to_anchor=(0.25,0.51), 
-fontsize=8, prop='times new roman', frameon=True, facecolor='white', edgecolor='grey', fancybox=False)
-legend.get_title().set_fontname('times new roman')
-legend.get_title().set_fontsize(10)
-```
+![GEEIP7](README%20Images/GEEIP7.png)
 
-The gridlines are set to be dash lines with width of 0.25 and colour of blue. We have title on the top so we disable the labels in the top.
+### 3.2 Run with `main.py`
 
-```python
-# set the gridlines
-gl=ax.gridlines(draw_labels=True,linestyle=":",linewidth=0.25,color='b')
-gl.top_labels=False                                                   
-gl.xlabel_style={'size':8,'fontproperties':'times new roman'}                          
-gl.ylabel_style={'size':8,'fontproperties':'times new roman'}
-```
+The detailed instructions about the execution code were introduced in [3.1 Run with `main.ipynb`](#31-run-with-mainipynb). This chapter focuses on the difference of execution in .py format from .ipynb format.
 
-Finally, we create a text box containing all the metadata. And the position is also custom to be in the place near the bottom centre. 
+First, please set up the parameters in the `input.json` file. To run the code, we need to navigate the terminal to the current directory and activate our conda environment (if not familiar with it, see [1.1 Set up the environment in Anaconda and install packages](#11-set-up-the-environment-in-anaconda-and-install-packages)).
 
-```python
-# set the metadata
-# Create a text box
-text_str = 'Made by: Senyang Li | Environment: Python 3.8.16\nSource: Natural Earth | CRS: Eckert IV'
-text_box = ax.text(x=0.543, y=0.006, s=text_str,transform=ax.transAxes,
-bbox=dict(facecolor='none', edgecolor='none', pad=5))
-text_box.set_fontproperties('times new roman')
-text_box.set_fontsize(5)
-```
+The code will initialize the access to Google Earth Engine first by popping up windows. Click `Allow` and the authorization will be successful.
+
+![GEEPY1](README%20Images/GEEPY1.jpeg)
+![GEEPY4](README%20Images/GEEPY4.png)
 
 
+Then the project will fetch, process and download images from Google Earth Engine automatically.
 
-#### 3.5 Export the map
+![GEEPY5](README%20Images/GEEPY5.png)
 
-We save the figure to be a png. with resolution of 300m and trim the unnecessary fringe. The figure is also shown after running the script by using `plt.show()`.
+Then it will go on detecting the fire and show the progress bar. Once down, all output images and tables will be exported to the result directory, whose path is defined in `input.json`.
 
-```python
-################# 5 map export and show ###########################
-
-# export the map
-plt.savefig('Task-2-Result (by Python).png', dpi=300, bbox_inches='tight')
-# show the map
-plt.show()
-```
-
-![Task-2-Result (by Python).png](README%20Images/Task-2-Result_(by_Python).png)
-
-
+![GEEPY6](README%20Images/GEEPY6.png)
 
 ## Useful Links
 
