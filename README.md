@@ -341,7 +341,7 @@ Git: [https://git-scm.com/](https://git-scm.com/)
 
 `geemap`: [https://geemap.org/](https://geemap.org/)
 
-pandas: [https://pandas.pydata.org/docs/user_guide/index.html](https://pandas.pydata.org/docs/user_guide/index.html)
+`pandas`: [https://pandas.pydata.org/docs/user_guide/index.html](https://pandas.pydata.org/docs/user_guide/index.html)
 
 `geopandas`: [https://geopandas.org/en/stable/docs.html](https://geopandas.org/en/stable/docs.html)
 
