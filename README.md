@@ -175,7 +175,7 @@ The file sets up all parameters ahead avoid any hard-coded vars. All modificatio
 >
 >*Output Data: fire detection and its validation visualization and values under directory `Fire_Detection_Result`*
 
-Both `main.ipynb` and `main.py` can execute the project with the same output. The codes for both files are equal. `main.ipynb` can bring more interactive experience while `main.py` is more efficient. The detailed manual to run the execution file is written in [3.1 Run with `main.ipynb`](#31-run-with-mainipynb) and [3.2 Run with `main.ipynb`](#32-run-with-mainpy) focuses on the difference. If you need to familiarize with the .ipynb and .py format, please check [1.2 Jupyter Notebook (ipynb.) / Python script (py.) in Visual Studio Code](#12-jupyter-notebook-ipynb--python-script-py-in-visual-studio-code).
+Both `main.ipynb` and `main.py` can execute the project with the same output. The codes for both files are equal. `main.ipynb` can bring more interactive experience while `main.py` is more efficient. The detailed manual to run the execution file is written in [3.1 Run with `main.ipynb`](#31-run-with-mainipynb) and [3.2 Run with `main.py`](#32-run-with-mainpy) focuses on the difference. If you need to familiarize with the .ipynb and .py format, please check [1.2 Jupyter Notebook (ipynb.) / Python script (py.) in Visual Studio Code](#12-jupyter-notebook-ipynb--python-script-py-in-visual-studio-code).
 
 ### 3.1 Run with `main.ipynb`
 
