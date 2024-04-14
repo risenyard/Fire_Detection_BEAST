@@ -129,9 +129,9 @@ This is the second module utilized by the project. It re-structures the standard
 - `float_to_datetime`: convert the float to datetime format.
 - `detect_fire`: detect the fire with BEAST at each pixel.
 - `save_temporal_variable`: save the temporal variable to file.
-- `load_temporal_variable`: load the temporal variable from file.
+- `load_temporal_variable`: load the temporal variable from the file.
 - `fire_visualization`: visualizes the results of fire detection by showing the predicted fire areas on the image. (taking the output of `detct_fire`)
-- `fire_visualization_by_time`: visualizes the results of fire detection by distribution of fire time. (taking the output of `detct_fire`)
+- `fire_visualization_by_time`: visualizes the results of fire detection by the distribution of fire time. (taking the output of `detct_fire`)
 - `coordinate_setting`: build coordinate for the visualization image.
 - `result_exported_as_raster`: export the detection result as raster (taking the output of `fire_visualisation`)
 - `result_validation`: validate the detection result with input true fire boundaries and generate confusion matrix and validation map,(taking the output of `result_exported_as_raster`)

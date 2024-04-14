@@ -51,11 +51,12 @@ with contextlib.redirect_stdout(output):
         result_directory=config['fire_detector']['result_directory']
     )
     # Detect the fire on each pixel's time series
-    time_series_after_detection = detector.detect_fire()
+    # time_series_after_detection = detector.detect_fire()
     
 time_series_after_detection_temporary_path = 'ts.pkl'
 #detector.save_temporal_variable(time_series_after_detection,time_series_after_detection_temporary_path)
 time_series_after_detection = detector.load_temporal_variable(time_series_after_detection_temporary_path)
+print(time_series_after_detection)
 # Visualize the fire detection result
 image = detector.fire_visualization(time_series_after_detection)
 detector.fire_visualization_by_time(time_series_after_detection)
@@ -65,3 +66,21 @@ result_raster_path = detector.result_exported_as_raster(image)
 # Validate the fire detection result
 validation_shp_path = config['fire_detector']['validation_shp_path']
 detector.result_validation(result_raster_path,validation_shp_path)
+
+import pickle
+
+# Save all the variables to a dictionary
+variables = {
+    'config': config,
+    'processor': processor,
+    'NDVI_stack': NDVI_stack,
+    'band_names': band_names,
+    'detector': detector,
+    'time_series_after_detection': time_series_after_detection,
+    'image': image,
+    'result_raster_path': result_raster_path
+}
+
+# Save the dictionary to a file
+with open('Test/test_variables.pkl', 'wb') as f:
+    pickle.dump(variables, f)
